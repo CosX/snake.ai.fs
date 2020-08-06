@@ -33,7 +33,7 @@ let createGameContext =
     map.[8, 8] <- (GameObject.Snake, Direction.Up)
     let (foodX, foodY) = createFood(map)
     map.[foodX, foodY] <- (GameObject.Food, Direction.None)
-    (map, Direction.Up, (8, 8), true)
+    (map, Direction.Up, (8, 8), 0, false)
     
 let modifyHitFood (map : (GameObject * Direction)[,], (x, y) : (int * int), direction : Direction) =
     map.[x, y] <- (GameObject.Snake, direction)
@@ -47,7 +47,7 @@ let modifyHitGround (map : (GameObject * Direction)[,], (x, y) : (int * int), di
     map.[tailX, tailY] <- (GameObject.Ground, Direction.None)
     map
 
-let gameLoop (map : (GameObject * Direction)[,], direction : Direction, (x, y) : (int * int)) =
+let gameLoop (map : (GameObject * Direction)[,], direction : Direction, (x, y) : (int * int), score : int) =
     let (newX, newY) =
         match direction with
         | Direction.Up -> (x - 1, y)
@@ -59,9 +59,9 @@ let gameLoop (map : (GameObject * Direction)[,], direction : Direction, (x, y) :
     try
         let (obj, _) = map.[newX, newY]
         match obj with
-        | GameObject.Snake -> (map, direction, (newX, newY), false)
-        | GameObject.Food -> (modifyHitFood(map, (newX, newY), direction), direction, (newX, newY), true)
-        | GameObject.Ground -> (modifyHitGround(map, (newX, newY), direction), direction, (newX, newY), true)
+        | GameObject.Snake -> (map, direction, (newX, newY), score, true)
+        | GameObject.Food -> (modifyHitFood(map, (newX, newY), direction), direction, (newX, newY), score + 10, false)
+        | GameObject.Ground -> (modifyHitGround(map, (newX, newY), direction), direction, (newX, newY), score, false)
     with
-    | :? System.IndexOutOfRangeException -> (map, direction, (newX, newY), false)
+    | :? System.IndexOutOfRangeException -> (map, direction, (newX, newY), score, true)
       
